@@ -5,6 +5,7 @@ package kg2020.task4.math;
  */
 public class Vector4 {
     private float[] values;
+    private static final int SIZE = 4;
 
     /**
      * Конструктор трехмерной точки по четырем составляющим составляющим
@@ -35,12 +36,13 @@ public class Vector4 {
      * Конструктор трехмерной точки на основе вектора из трех составляющих и составляющей w
      *
      * @param vector - исходный {@link Vector3}
-     * @param w - составляющая W
+     * @param w      - составляющая W
      */
 
     public Vector4(Vector3 vector, float w) {
         this.values = new float[]{vector.getX(), vector.getY(), vector.getZ(), w};
     }
+
     /**
      * Конструктор трехмерной точки на основе вектора из трех составляющих
      *
@@ -52,6 +54,19 @@ public class Vector4 {
     }
 
     private static final float EPS = 1e-12f;
+
+    /**
+     * Возвращает нулевой вектор из 4 компонент
+     *
+     * @return вектор из 4х нулей
+     */
+    public static Vector4 zeroVector4() {
+        return new Vector4(0, 0, 0, 0);
+    }
+
+    private Vector4(float[] array) {
+        this.values = array;
+    }
 
     /**
      * Возвращает нормализованный по компоненте W вектор
@@ -103,5 +118,31 @@ public class Vector4 {
      */
     public float at(int index) {
         return values[index];
+    }
+
+    /**
+     * Умножает вектор из четырех компонент на число
+     * @param number число, на которое умножается вектор
+     * @return результат умножения
+     */
+    public Vector4 mul(float number) {
+        float[] result = new float[4];
+        for (int i = 0; i < SIZE; i++) {
+            result[i] = this.at(i) * number;
+        }
+        return new Vector4(result);
+    }
+
+    /**
+     * Складывает вектор с другим вектором
+     * @param other другой вектор, с которым производится сложение
+     * @return результат сложения
+     */
+    public Vector4 add(Vector4 other) {
+        float[] result = new float[4];
+        for (int i = 0; i < SIZE; i++) {
+            result[i] = this.at(i) + other.at(i);
+        }
+        return new Vector4(result);
     }
 }
