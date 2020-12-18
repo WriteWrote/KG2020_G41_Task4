@@ -39,6 +39,11 @@ public class Vector3 {
         return values[2];
     }
 
+    /**
+     * Возвращает координаты точки по индексу во внутреннем массиве
+     * @param index индекс возвращаемой координаты
+     * @return значение координаты
+     */
     public float at(int index) {
         return values[index];
     }

@@ -2,7 +2,9 @@ package kg2020.task4;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import kg2020.task4.math.Vector4;
 import kg2020.task4.threeD.DrawPanel;
+import kg2020.task4.threeD.IModel;
 
 import javax.swing.*;
 import java.awt.*;
