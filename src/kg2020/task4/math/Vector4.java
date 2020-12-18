@@ -7,7 +7,7 @@ public class Vector4 {
     private float[] values;
 
     /**
-     * Конструктор трехмерной точки
+     * Конструктор трехмерной точки по четырем составляющим составляющим
      *
      * @param x - составляющая Х
      * @param y - составляющая У
@@ -19,10 +19,43 @@ public class Vector4 {
         this.values = new float[]{x, y, z, w};
     }
 
+    /**
+     * Конструктор трехмерной точки по трем составляющим составляющим
+     *
+     * @param x - составляющая Х
+     * @param y - составляющая У
+     * @param z - составляющая Z
+     */
+
+    public Vector4(float x, float y, float z) {
+        this.values = new float[]{x, y, z, 0};
+    }
+
+    /**
+     * Конструктор трехмерной точки на основе вектора из трех составляющих и составляющей w
+     *
+     * @param vector - исходный {@link Vector3}
+     * @param w - составляющая W
+     */
+
+    public Vector4(Vector3 vector, float w) {
+        this.values = new float[]{vector.getX(), vector.getY(), vector.getZ(), w};
+    }
+    /**
+     * Конструктор трехмерной точки на основе вектора из трех составляющих
+     *
+     * @param vector - исходный {@link Vector3}
+     */
+
+    public Vector4(Vector3 vector) {
+        this.values = new float[]{vector.getX(), vector.getY(), vector.getZ(), 0};
+    }
+
     private static final float EPS = 1e-12f;
 
     /**
      * Возвращает нормализованный по компоненте W вектор
+     *
      * @return новый экземпляр {@link Vector4}
      */
     public Vector4 normalized() {
