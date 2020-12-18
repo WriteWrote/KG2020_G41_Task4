@@ -1,3 +1,5 @@
+package kg2020.task4;
+
 import javax.swing.*;
 
 public class MainWindow extends JDialog {
