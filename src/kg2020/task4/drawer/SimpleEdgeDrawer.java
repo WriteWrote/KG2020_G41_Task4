@@ -11,7 +11,9 @@ import kg2020.task4.screen.ScreenPoint;
 import kg2020.task4.threeD.PolyLine3D;
 
 import java.awt.*;
+import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Реализация рисователя полигонов с помощью рёбер.
@@ -80,5 +82,9 @@ public class SimpleEdgeDrawer extends ScreenGraphicsDrawer {
             }
         };
     }
-    
+
+    @Override
+    public void draw(List<PolyLine3D> lines) {
+
+    }
 }
