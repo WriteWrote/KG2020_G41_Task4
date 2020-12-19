@@ -8,7 +8,7 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="dfaaa" class="kg2020.task4.threeD.DrawPanel" binding="drawPanel1" custom-create="true" default-binding="true">
+      <component id="dfaaa" class="kg2020.task4.DrawPanel" binding="drawPanel1" custom-create="true" default-binding="true">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
             <minimum-size width="800" height="600"/>

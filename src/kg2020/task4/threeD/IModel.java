@@ -8,7 +8,7 @@ import java.util.List;
 public interface IModel {
     /**
      * Модель метода, возвращающая список линий, описывающих контуры трехмерной фигуры
-     * @return Список из {@link Polyline3D}
+     * @return Список из {@link PolyLine3D}
      */
-    List<Polyline3D> getLines();
+    List<PolyLine3D> getLines();
 }

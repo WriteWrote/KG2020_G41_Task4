@@ -1,4 +1,4 @@
-package kg2020.task4.threeD;
+package kg2020.task4;
 
 import javax.swing.*;
 
