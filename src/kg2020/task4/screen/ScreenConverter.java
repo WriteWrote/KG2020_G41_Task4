@@ -56,8 +56,8 @@ public class ScreenConverter {
      * @param h высота
      */
     public void setScreenSize(int w, int h) {
-        setWs(w);
-        setHs(h);
+        setScreenW(w);
+        setScreenH(h);
     }
 
     public double getHr() {
@@ -72,7 +72,7 @@ public class ScreenConverter {
         return hs;
     }
 
-    public void setHs(int hs) {
+    public void setScreenH(int hs) {
         this.hs = hs;
     }
 
@@ -88,7 +88,7 @@ public class ScreenConverter {
         return ws;
     }
 
-    public void setWs(int ws) {
+    public void setScreenW(int ws) {
         this.ws = ws;
     }
 

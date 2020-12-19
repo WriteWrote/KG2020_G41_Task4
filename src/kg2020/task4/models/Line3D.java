@@ -13,7 +13,8 @@ import java.util.List;
 
 /**
  * Описывает трёхмерный отрезок
- * @author Alexey
+ *
+ * @author Alexey Nuzhnykh
  */
 public class Line3D implements IModel {
     private Vector3 p1, p2;
@@ -26,8 +27,8 @@ public class Line3D implements IModel {
     @Override
     public List<PolyLine3D> getLines() {
         return Arrays.asList(new PolyLine3D(
-                Arrays.asList(p1, p2)
-            , false));
+                Arrays.asList(p1, p2),
+                false));
     }
-    
+
 }
