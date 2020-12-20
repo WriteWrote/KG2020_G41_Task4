@@ -15,7 +15,7 @@ import java.util.List;
 public class Cylinder implements IModel {
     private Vector3 startCenter, endCenter;
     private float radius;
-    public static final int POLYGONS = 10;
+    public static final int POLYGONS = 32;
 
     public Cylinder(Vector3 startCenter, Vector3 endCenter, float radius) {
         this.startCenter = startCenter;
@@ -27,7 +27,6 @@ public class Cylinder implements IModel {
     public List<PolyLine3D> getLines() {
         List<PolyLine3D> lines = new LinkedList<>();
 
-// один срез
         double deltaAngle = Math.PI * 2 / POLYGONS;
         Vector3[] startSlice = new Vector3[POLYGONS];
         Vector3[] endSlice = new Vector3[POLYGONS];
@@ -41,31 +40,20 @@ public class Cylinder implements IModel {
             float z2 = endCenter.getZ();
             endSlice[i - 1] = new Vector3(x, y, z2);
 
-            if (i % 2 != 0) {
-                Vector3[] sidePolygon = new Vector3[]{
-                        new Vector3(x, y, z1),
-                        new Vector3(x, y, z2),
-                        new Vector3((float) (radius * Math.cos(deltaAngle * (i + 1))),
-                                (float) (radius * Math.sin(deltaAngle * (i + 1))),
-                                z1),
-                        new Vector3((float) (radius * Math.cos(deltaAngle * (i + 1))),
-                                (float) (radius * Math.sin(deltaAngle * (i+1))),
-                                z2)
-                };
-                lines.add(new PolyLine3D(Arrays.asList(sidePolygon), true));
-            }
+            Vector3[] sidePolygon = new Vector3[]{
+                    new Vector3(x, y, z1),
+                    new Vector3(x, y, z2),
+                    new Vector3((float) (radius * Math.cos(deltaAngle * (i + 1))),
+                            (float) (radius * Math.sin(deltaAngle * (i + 1))),
+                            z2),
+                    new Vector3((float) (radius * Math.cos(deltaAngle * (i + 1))),
+                            (float) (radius * Math.sin(deltaAngle * (i + 1))),
+                            z1),
+            };
+            lines.add(new PolyLine3D(Arrays.asList(sidePolygon), true));
         }
         lines.add(new PolyLine3D(Arrays.asList(startSlice), true));
         lines.add(new PolyLine3D(Arrays.asList(endSlice), true));
-        /*
-        lines.add(new PolyLine3D(Arrays.asList(new Vector3[]{
-                new Vector3(LTF.getX(), LTF.getY(), LTF.getZ()),
-                new Vector3(LTF.getX(), RBN.getY(), LTF.getZ()),
-                new Vector3(RBN.getX(), RBN.getY(), LTF.getZ()),
-                new Vector3(RBN.getX(), LTF.getY(), LTF.getZ())
-        }), true));
-         */
-
         /*
          * махия
          */
