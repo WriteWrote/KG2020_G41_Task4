@@ -17,11 +17,22 @@ public class Cylinder implements IModel {
     private float radius;
     public static final int POLYGONS = 32;
 
+    /**
+     * Задает параметры цилиндра (использует внутреннюю константу POLYGONS для описания круга в приближении):
+     * @param startCenter {@link Vector3} центр окружности начала/низа
+     * @param endCenter {@link Vector3} центp окружности конца/верха
+     * @param radius радиус обоих окружностей
+     */
     public Cylinder(Vector3 startCenter, Vector3 endCenter, float radius) {
         this.startCenter = startCenter;
         this.endCenter = endCenter;
         this.radius = radius;
     }
+
+    /**
+     * Строит математическую модель цилиндра с приближенной моделью окружности из 32 точек.
+     * @return список из {@link PolyLine3D}: Два среза цилиндра и грани в виде прямоугольников, соединяющие их
+     */
 
     @Override
     public List<PolyLine3D> getLines() {
