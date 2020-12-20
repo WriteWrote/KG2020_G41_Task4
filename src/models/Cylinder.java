@@ -15,6 +15,7 @@ import java.util.List;
 public class Cylinder implements IModel {
     private Vector3 startCenter, endCenter;
     private float radius;
+    public static final int POLYGONS = 10;
 
     public Cylinder(Vector3 startCenter, Vector3 endCenter, float radius) {
         this.startCenter = startCenter;
@@ -24,19 +25,38 @@ public class Cylinder implements IModel {
 
     @Override
     public List<PolyLine3D> getLines() {
-        LinkedList<PolyLine3D> lines = new LinkedList<>();
+        List<PolyLine3D> lines = new LinkedList<>();
+
 // один срез
-        double deltaAngle = Math.PI * 2 / 32;
-        Vector3[] startSlice = new Vector3[32];
-        for (int i = 1; i <= 32; i++) {
-// заполняем массив точками круга
+        double deltaAngle = Math.PI * 2 / POLYGONS;
+        Vector3[] startSlice = new Vector3[POLYGONS];
+        Vector3[] endSlice = new Vector3[POLYGONS];
+
+        for (int i = 1; i <= POLYGONS; i++) {
             float x = (float) (radius * Math.cos(deltaAngle * (i)));
             float y = (float) (radius * Math.sin(deltaAngle * (i)));
-            float z = startCenter.getZ();
-            startSlice[i - 1] = new Vector3(x, y, z);
+            float z1 = startCenter.getZ();
+            startSlice[i - 1] = new Vector3(x, y, z1);
+
+            float z2 = endCenter.getZ();
+            endSlice[i - 1] = new Vector3(x, y, z2);
+
+            if (i % 2 != 0) {
+                Vector3[] sidePolygon = new Vector3[]{
+                        new Vector3(x, y, z1),
+                        new Vector3(x, y, z2),
+                        new Vector3((float) (radius * Math.cos(deltaAngle * (i + 1))),
+                                (float) (radius * Math.sin(deltaAngle * (i + 1))),
+                                z1),
+                        new Vector3((float) (radius * Math.cos(deltaAngle * (i + 1))),
+                                (float) (radius * Math.sin(deltaAngle * (i+1))),
+                                z2)
+                };
+                lines.add(new PolyLine3D(Arrays.asList(sidePolygon), true));
+            }
         }
         lines.add(new PolyLine3D(Arrays.asList(startSlice), true));
-        // второй срез
+        lines.add(new PolyLine3D(Arrays.asList(endSlice), true));
         /*
         lines.add(new PolyLine3D(Arrays.asList(new Vector3[]{
                 new Vector3(LTF.getX(), LTF.getY(), LTF.getZ()),
