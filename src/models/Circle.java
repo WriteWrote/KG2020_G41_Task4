@@ -13,6 +13,7 @@ public class Circle implements IModel {
     private float radius;
     private final int EDGES = 32;
 
+
     public Circle(Vector3 center, float radius) {
         this.center = center;
         this.radius = radius;
