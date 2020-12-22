@@ -47,7 +47,7 @@ public class DrawPanel extends JPanel
         scene.getModelsList().add(new Torus(new Vector3(-0.4f, -0.4f, -0.4f),
                 0.5f, 0.2f));
 
-        scene.getModelsList().add(new Test(new Vector3(0,0,0), 0.5f));
+//        scene.getModelsList().add(new Test(new Vector3(0,0,0), 0.5f));
         camController.addRepaintListener(this);
         addMouseListener(camController);
         addMouseMotionListener(camController);

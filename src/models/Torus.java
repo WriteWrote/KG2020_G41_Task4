@@ -60,10 +60,10 @@ public class Torus implements IModel {
         angleVectors.add(new Vector3(circles[EDGES - 1].getX() - circles[0].getX(),
                 circles[EDGES - 1].getY() - circles[0].getY(),
                 circles[EDGES - 1].getZ() - circles[0].getZ()));
-// подготовительные данные собраны:
-// центры кругов circles,
-// векторы направляющей прямой angleVectors,
-// дельта угол delta
+        // подготовительные данные собраны:
+        // центры кругов circles,
+        // векторы направляющей прямой angleVectors,
+        // дельта угол delta
 
         for (int i = 0; i < EDGES; i++) {
             // разбираем один круг
@@ -91,13 +91,16 @@ public class Torus implements IModel {
             // берем вектор для этого круга, берем вектор самого круга
             Vector3 vec = angleVectors.get(i);
             Vector3 cv = circles[i];
+            System.out.println("vector: " + vec.getX() + " ; " + vec.getY() + " ; " + vec.getZ() +
+                    "   circle: " + cv.getX() + " ; " + cv.getY() + " ; " + cv.getZ());
             // вычисление угла между направлящим вектором прямой и нормалью текущей окружности
             double angle = Math.acos((vec.getX() * cv.getX() + vec.getY() * cv.getY() + vec.getZ() * cv.getZ()) /
                     (Math.sqrt(vec.getX() * vec.getX() + vec.getY() * vec.getY() + vec.getZ() * vec.getZ()) *
                             Math.sqrt(cv.getX() * cv.getX() + cv.getY() * cv.getY() + cv.getZ() * cv.getZ())
                     ));
+            System.out.println("angle: " + angle);
             // матрица поворота на угол по тору: для каждого круга ++delta
-            Matrix4 m = Matrix4Factories.rotationXYZ(delta * i, 2);
+            Matrix4 m = Matrix4Factories.rotationXYZ(angle, 2);
             // поворот вокруг оси z для всех точек круга, лежащих в slice
             for (int j = 0; j < EDGES; j++) {
                 // перезапись точек окружности
