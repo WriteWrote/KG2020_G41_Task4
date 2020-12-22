@@ -44,7 +44,12 @@ public class Torus implements IModel {
             float x = (float) (torusRad * Math.cos(delta * (i)));
             float y = (float) (torusRad * Math.sin(delta * (i)));
             float z = torusCenter.getZ();
-            centers[i - 1] = new Vector3(x, y, z);
+            Matrix4 m = Matrix4Factories.rotationXYZ(Math.PI / 2, 1);
+            Vector4 v = new Vector4(x, y, z);
+            v = m.mul(v);
+            m = Matrix4Factories.rotationXYZ(-delta, 2);
+            v = m.mul(v);
+            centers[i - 1] = new Vector3(v.getX(), v.getY(), v.getZ());
         }
         // просто для проверки строится траектория внутренней окружности торуса
         lines.add(new PolyLine3D(Arrays.asList(centers), true));
