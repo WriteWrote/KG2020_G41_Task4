@@ -70,15 +70,38 @@ public class Torus implements IModel {
 
                 Matrix4 m = Matrix4Factories.rotationXYZ(Math.PI / 2, 1);
                 v = m.mul(v);
-                //m = Matrix4Factories.rotationXYZ(-delta * i, 0);
-                //v = m.mul(v);
                 float dx = centers[i].getX() - v.getX();
-                float dz = (centers[i].getZ() - v.getZ())/EDGES;
-                slice[j - 1] = new Vector3(v.getX()+dx, v.getY(), (float) (centers[i].getZ()+radius*Math.cos(delta*j)));
+                //float dz = (centers[i].getZ() - v.getZ())/EDGES;
+
+                //slice[j - 1] = new Vector3(v.getX(), v.getY(), (float) (centers[i].getZ() + radius * Math.cos(delta * j)));
+                slice[j - 1] = new Vector3(v.getX() + dx, v.getY(), (float) (centers[i].getZ() + radius * Math.cos(delta * j)));
             }
-            for (int j = 0; j < slice.length; j++) {
+            List<Vector3> angleVectors = new LinkedList<>();
+            for (int o = 0; o < EDGES - 1; o++) {
+                float x = centers[o + 1].getX() - centers[o].getX();
+                float y = centers[o + 1].getY() - centers[o].getY();
+                float z = centers[o + 1].getZ() - centers[o].getZ();
+                angleVectors.add(new Vector3(x, y, z));
+            }
+            angleVectors.add(new Vector3(centers[EDGES - 1].getX() - centers[0].getX(),
+                    centers[EDGES - 1].getY() - centers[0].getY(),
+                    centers[EDGES - 1].getZ() - centers[0].getZ()));
+
+            for (int j = 0; j < EDGES; j++) {
+                Vector3 vec = angleVectors.get(j);
+                Vector3 cv = centers[i];
+                double angle = Math.acos((vec.getX() * cv.getX() + vec.getY() * cv.getY() + vec.getZ() * cv.getZ()) /
+                        (Math.sqrt(vec.getX() * vec.getX() + vec.getY() * vec.getY() + vec.getZ() * vec.getZ()) *
+                                Math.sqrt(cv.getX() * cv.getX() + cv.getY() * cv.getY() + cv.getZ() * cv.getZ())
+                        ));
+                Matrix4 m = Matrix4Factories.rotationXYZ(angle, 2);
+                for (int k=0; k<EDGES; k++) {
+                    Vector4 v4 = m.mul(new Vector4(slice[k]));
+                    slice[k] = new Vector3(v4.getX(), v4.getY(), v4.getZ());
+                }
 
             }
+
             PolyLine3D line = new PolyLine3D(Arrays.asList(slice), true);
             lines.add(line);
         }

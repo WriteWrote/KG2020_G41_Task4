@@ -17,6 +17,7 @@ import kg2019examples_task4threedimensions.screen.ScreenConverter;
 import kg2019examples_task4threedimensions.third.Camera;
 import kg2019examples_task4threedimensions.third.Scene;
 import models.Cylinder;
+import models.Test;
 import models.Torus;
 
 /**
@@ -42,20 +43,11 @@ public class DrawPanel extends JPanel
                 new Vector3(0.4f, 0.4f, 0.4f)
         ));
         */
-/*
-        scene.getModelsList().add(new Cylinder(
-                new Vector3(-0.4f, -0.4f, -0.4f),
-                new Vector3(0.4f, 0.4f, 0.4f),
-                0.3f
-        ));
-*/
+        /*
         scene.getModelsList().add(new Torus(new Vector3(-0.4f, -0.4f, -0.4f),
                 0.5f, 0.2f));
-        /*
-        scene.getModelsList().add(new Cylinder(new Vector3(-0.3f, -0.3f, -0.5f),
-                new Vector3(-0.3f, -0.3f, 0.3f), 0.2f));
-
-         */
+        */
+        scene.getModelsList().add(new Test(new Vector3(0,0,0), 0.5f));
         camController.addRepaintListener(this);
         addMouseListener(camController);
         addMouseMotionListener(camController);
