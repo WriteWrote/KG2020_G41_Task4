@@ -90,7 +90,7 @@ public class Torus implements IModel {
             }
             // берем вектор для этого круга, берем вектор самого круга
             Vector3 vec = angleVectors.get(i);
-            Vector3 cv = circles[i];
+            Vector3 cv = new Vector3(-1, 0, 0);
             System.out.println("vector: " + vec.getX() + " ; " + vec.getY() + " ; " + vec.getZ() +
                     "   circle: " + cv.getX() + " ; " + cv.getY() + " ; " + cv.getZ());
             // вычисление угла между направлящим вектором прямой и нормалью текущей окружности
@@ -101,6 +101,7 @@ public class Torus implements IModel {
             System.out.println("angle: " + angle);
             // матрица поворота на угол по тору: для каждого круга ++delta
             Matrix4 m = Matrix4Factories.rotationXYZ(angle, 2);
+            //Matrix4 m = Matrix4Factories.rotationXYZ(delta * i, 2);
             // поворот вокруг оси z для всех точек круга, лежащих в slice
             for (int j = 0; j < EDGES; j++) {
                 // перезапись точек окружности
