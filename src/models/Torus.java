@@ -70,9 +70,9 @@ public class Torus implements IModel {
             Vector3[] slice = new Vector3[EDGES];
             for (int j = 1; j <= EDGES; j++) {
                 // строим базовые точки круга
-                float x = (float) (torusRad * Math.cos(delta * i) + torusThickness * Math.cos(delta * (j)));
-                float y = (float) (torusRad * Math.sin(delta * i) + torusThickness * Math.sin(delta * (j)));
-                float z = circles[i].getZ();
+                float x = (float) (torusThickness * Math.cos(delta * (j)));
+                float y = (float) (torusThickness * Math.sin(delta * (j)));
+                float z = 0;
 
                 // поворот на 90 градусов
                 Vector4 v = new Vector4(x, y, z);
@@ -80,17 +80,19 @@ public class Torus implements IModel {
                 v = m.mul(v);
 
                 // прибавка для смещения по иксу
-                float dx = circles[i].getX() - v.getX();
+//                float dx = circles[i].getX() - v.getX();
 
                 //slice[j - 1] = new Vector3(v.getX(), v.getY(), (float) (centers[i].getZ() + radius * Math.cos(delta * j)));
 
                 // завершаем создание круга, ориентированного по ходу линии
-                slice[j - 1] = new Vector3(v.getX() + dx, v.getY(),
+                slice[j - 1] = new Vector3(v.getX(), v.getY(),
                         (float) (circles[i].getZ() + torusThickness * Math.cos(delta * j)));
             }
             // берем вектор для этого круга, берем вектор самого круга
             Vector3 vec = angleVectors.get(i);
-            Vector3 cv = new Vector3(-1, 0, 0);
+            Vector3 cv = circles[i].getX() < 0 ? new Vector3(1, 0, 0) : new Vector3(-1, 0, 0);
+
+            //Vector3 cv = new Vector3(1, 0, 0);
             System.out.println("vector: " + vec.getX() + " ; " + vec.getY() + " ; " + vec.getZ() +
                     "   circle: " + cv.getX() + " ; " + cv.getY() + " ; " + cv.getZ());
             // вычисление угла между направлящим вектором прямой и нормалью текущей окружности
@@ -105,8 +107,15 @@ public class Torus implements IModel {
             // поворот вокруг оси z для всех точек круга, лежащих в slice
             for (int j = 0; j < EDGES; j++) {
                 // перезапись точек окружности
-                Vector4 v4 = m.mul(new Vector4(slice[j]));
-                slice[j] = new Vector3(v4.getX(), v4.getY(), v4.getZ());
+                Vector4 v4 = new Vector4(slice[j]);
+                if (i != 7 && i != 23 && i != 31 && i != 15) {
+                    v4 = m.mul(v4);
+                }
+                if (i == 31 || i == 15) {
+                    Matrix4 t = Matrix4Factories.rotationXYZ(Math.PI / 2, 2);
+                    v4 = t.mul(v4);
+                }
+                slice[j] = new Vector3(v4.getX() + circles[i].getX(), v4.getY() + circles[i].getY(), v4.getZ() + circles[i].getZ() + 2 * torusThickness);
             }
             // создание полилинии одного круга и добавление ее в список линий
             PolyLine3D line = new PolyLine3D(Arrays.asList(slice), true);
