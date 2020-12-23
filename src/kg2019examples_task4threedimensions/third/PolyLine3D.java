@@ -56,5 +56,8 @@ public class PolyLine3D {
             sum += v.getZ();
         return sum / points.size();
     }
-    
+
+    public Vector3 get(int index) {
+        return this.points.get(index);
+    }
 }

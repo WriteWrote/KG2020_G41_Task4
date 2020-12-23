@@ -8,6 +8,8 @@ import kg2019examples_task4threedimensions.third.IModel;
 import kg2019examples_task4threedimensions.third.PolyLine3D;
 
 import javax.swing.text.EditorKit;
+import javax.swing.tree.DefaultTreeCellEditor;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,7 +21,7 @@ public class Torus implements IModel {
     private Vector3 torusCenter;
     private float torusRad;
     private float torusThickness;
-    private static final int EDGES = 32;
+    private static final int EDGES = 31;
 
     /**
      * Создает экземпляр тора, используя уравнение окружности.
@@ -36,7 +38,7 @@ public class Torus implements IModel {
 
     @Override
     public List<PolyLine3D> getLines() {
-        List<PolyLine3D> lines = new LinkedList<>();
+        List<PolyLine3D> lines = new ArrayList<>();
         double delta = Math.PI * 2 / EDGES;
 
         Vector3[] circles = new Vector3[EDGES];
@@ -79,11 +81,6 @@ public class Torus implements IModel {
                 Matrix4 m = Matrix4Factories.rotationXYZ(Math.PI / 2, 1);
                 v = m.mul(v);
 
-                // прибавка для смещения по иксу
-//                float dx = circles[i].getX() - v.getX();
-
-                //slice[j - 1] = new Vector3(v.getX(), v.getY(), (float) (centers[i].getZ() + radius * Math.cos(delta * j)));
-
                 // завершаем создание круга, ориентированного по ходу линии
                 slice[j - 1] = new Vector3(v.getX(), v.getY(),
                         (float) (circles[i].getZ() + torusThickness * Math.cos(delta * j)));
@@ -92,26 +89,21 @@ public class Torus implements IModel {
             Vector3 vec = angleVectors.get(i);
             Vector3 cv = circles[i].getX() < 0 ? new Vector3(1, 0, 0) : new Vector3(-1, 0, 0);
 
-            //Vector3 cv = new Vector3(1, 0, 0);
-            System.out.println("vector: " + vec.getX() + " ; " + vec.getY() + " ; " + vec.getZ() +
-                    "   circle: " + cv.getX() + " ; " + cv.getY() + " ; " + cv.getZ());
             // вычисление угла между направлящим вектором прямой и нормалью текущей окружности
             double angle = Math.acos((vec.getX() * cv.getX() + vec.getY() * cv.getY() + vec.getZ() * cv.getZ()) /
                     (Math.sqrt(vec.getX() * vec.getX() + vec.getY() * vec.getY() + vec.getZ() * vec.getZ()) *
                             Math.sqrt(cv.getX() * cv.getX() + cv.getY() * cv.getY() + cv.getZ() * cv.getZ())
                     ));
-            System.out.println("angle: " + angle);
             // матрица поворота на угол по тору: для каждого круга ++delta
             Matrix4 m = Matrix4Factories.rotationXYZ(angle, 2);
-            //Matrix4 m = Matrix4Factories.rotationXYZ(delta * i, 2);
             // поворот вокруг оси z для всех точек круга, лежащих в slice
             for (int j = 0; j < EDGES; j++) {
                 // перезапись точек окружности
                 Vector4 v4 = new Vector4(slice[j]);
-                if (i != 7 && i != 23 && i != 31 && i != 15) {
+                if (i != EDGES / 4 - 1 && i != 3 * EDGES / 4 - 1 && i != EDGES - 1 && i != EDGES / 2 - 1) {
                     v4 = m.mul(v4);
                 }
-                if (i == 31 || i == 15) {
+                if (i == EDGES - 1 || i == EDGES / 2 - 1) {
                     Matrix4 t = Matrix4Factories.rotationXYZ(Math.PI / 2, 2);
                     v4 = t.mul(v4);
                 }
@@ -120,7 +112,33 @@ public class Torus implements IModel {
             // создание полилинии одного круга и добавление ее в список линий
             PolyLine3D line = new PolyLine3D(Arrays.asList(slice), true);
             lines.add(line);
+            // создание полигончиков, наконец-то
         }
+        for (int i = 1; i < EDGES; i++) {
+            addPolyCircle(lines, i, i + 1);
+        }
+        addPolyCircle(lines, EDGES, 1);
+
         return lines;
+    }
+
+    private void addPolygon(PolyLine3D curr, PolyLine3D next, List<PolyLine3D> lines, int nCurr, int nPrev) {
+        Vector3[] points = new Vector3[4];
+        points[0] = curr.get(nCurr);
+        points[1] = next.get(nCurr);
+        points[2] = next.get(nPrev);
+        points[3] = curr.get(nPrev);
+        PolyLine3D l = new PolyLine3D(Arrays.asList(points), true);
+        lines.add(l);
+    }
+
+    private void addPolyCircle(List<PolyLine3D> lines, int nCurr, int nPrev) {
+        PolyLine3D curr = lines.get(nCurr);
+        PolyLine3D next = lines.get(nPrev);
+
+        for (int j = 0; j < EDGES - 1; j++) {
+            addPolygon(curr, next, lines, j, j + 1);
+        }
+        addPolygon(curr, next, lines, EDGES - 1, 0);
     }
 }
