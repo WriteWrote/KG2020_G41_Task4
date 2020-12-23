@@ -21,7 +21,7 @@ public class Torus implements IModel {
     private Vector3 torusCenter;
     private float torusRad;
     private float torusThickness;
-    private static final int EDGES = 31;
+    private static final int EDGES = 30;
 
     /**
      * Создает экземпляр тора, используя уравнение окружности.
@@ -49,7 +49,6 @@ public class Torus implements IModel {
             circles[i - 1] = new Vector3(x, y, z);
         }
         // просто для проверки строится траектория внутренней окружности торуса
-        lines.add(new PolyLine3D(Arrays.asList(circles), true));
 
         //список векторов по направлению линии
         List<Vector3> angleVectors = new LinkedList<>();
@@ -67,7 +66,7 @@ public class Torus implements IModel {
         // векторы направляющей прямой angleVectors,
         // дельта угол delta
 
-        for (int i = 0; i < EDGES; i++) {
+        for (int i = 0; i < EDGES ; i++) {
             // разбираем один круг
             Vector3[] slice = new Vector3[EDGES];
             for (int j = 1; j <= EDGES; j++) {
@@ -99,14 +98,7 @@ public class Torus implements IModel {
             // поворот вокруг оси z для всех точек круга, лежащих в slice
             for (int j = 0; j < EDGES; j++) {
                 // перезапись точек окружности
-                Vector4 v4 = new Vector4(slice[j]);
-                if (i != EDGES / 4 - 1 && i != 3 * EDGES / 4 - 1 && i != EDGES - 1 && i != EDGES / 2 - 1) {
-                    v4 = m.mul(v4);
-                }
-                if (i == EDGES - 1 || i == EDGES / 2 - 1) {
-                    Matrix4 t = Matrix4Factories.rotationXYZ(Math.PI / 2, 2);
-                    v4 = t.mul(v4);
-                }
+                Vector4 v4 = m.mul(new Vector4(slice[j]));
                 slice[j] = new Vector3(v4.getX() + circles[i].getX(), v4.getY() + circles[i].getY(), v4.getZ() + circles[i].getZ() + 2 * torusThickness);
             }
             // создание полилинии одного круга и добавление ее в список линий
@@ -114,10 +106,10 @@ public class Torus implements IModel {
             lines.add(line);
             // создание полигончиков, наконец-то
         }
-        for (int i = 1; i < EDGES; i++) {
+        for (int i = 0; i < EDGES - 1; i++) {
             addPolyCircle(lines, i, i + 1);
         }
-        addPolyCircle(lines, EDGES, 1);
+        addPolyCircle(lines, EDGES-1, 0);
 
         return lines;
     }
@@ -135,10 +127,47 @@ public class Torus implements IModel {
     private void addPolyCircle(List<PolyLine3D> lines, int nCurr, int nPrev) {
         PolyLine3D curr = lines.get(nCurr);
         PolyLine3D next = lines.get(nPrev);
-
-        for (int j = 0; j < EDGES - 1; j++) {
-            addPolygon(curr, next, lines, j, j + 1);
+        if (nCurr == EDGES / 4-1 || nCurr == 3 * EDGES / 4-1) {
+            aVoid(curr, next, lines);
+        } else {
+            for (int j = 0; j < EDGES - 1; j++) {
+                addPolygon(curr, next, lines, j, j + 1);
+            }
+            addPolygon(curr, next, lines, EDGES - 1, 0);
         }
-        addPolygon(curr, next, lines, EDGES - 1, 0);
+    }
+
+    private void aVoid(PolyLine3D curr, PolyLine3D next, List<PolyLine3D> lines) {
+        for (int j = 0; j < EDGES - 3; j++) {
+            Vector3[] points = new Vector3[4];
+            points[0] = curr.get(j);
+            points[1] = curr.get(j + 1);
+            int a = EDGES - 3 - j;
+            points[2] = next.get(EDGES - 3 - j);
+            points[3] = next.get(EDGES - 2 - j);
+            PolyLine3D l = new PolyLine3D(Arrays.asList(points), true);
+            lines.add(l);
+        }
+        Vector3[] points = new Vector3[4];
+        points[0] = curr.get(EDGES - 1);
+        points[1] = curr.get(0);
+        points[2] = next.get(EDGES - 2);
+        points[3] = next.get(EDGES - 1);
+        PolyLine3D l = new PolyLine3D(Arrays.asList(points), true);
+        lines.add(l);
+        points = new Vector3[4];
+        points[0] = curr.get(EDGES - 2);
+        points[1] = curr.get(EDGES - 1);
+        points[2] = next.get(EDGES - 1);
+        points[3] = next.get(0);
+        l = new PolyLine3D(Arrays.asList(points), true);
+        lines.add(l);
+        points = new Vector3[4];
+        points[0] = curr.get(EDGES - 3);
+        points[1] = curr.get(EDGES - 2);
+        points[2] = next.get(0);
+        points[3] = next.get(1);
+        l = new PolyLine3D(Arrays.asList(points), true);
+        lines.add(l);
     }
 }
