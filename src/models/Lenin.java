@@ -1,5 +1,6 @@
 package models;
 
+import kg2019examples_task4threedimensions.math.Matrix4;
 import kg2019examples_task4threedimensions.math.Matrix4Factories;
 import kg2019examples_task4threedimensions.math.Vector3;
 import kg2019examples_task4threedimensions.math.Vector4;
@@ -11,7 +12,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public interface Lenin extends IModel {
+public abstract class Lenin implements IModel {
     class Pair {
         private double angle;
         private int axis;
@@ -30,24 +31,43 @@ public interface Lenin extends IModel {
         }
     }
 
-    Vector3[] getPath(int dimension, Vector3 start, Vector3 end);
+    abstract Vector3[] getPath(int dimension);
 
-    private Vector3[] getCircle(Vector3 center, float radius) {
-        Vector3[] points = new Vector3[30];
-        double delta = Math.PI/30;
-        for (int i = 1; i <= 30; i++) {
+    Vector3[] getCircle(Vector3 center, float radius, int dimension) {
+        Vector3[] points = new Vector3[dimension];
+        double delta = Math.PI / dimension;
+        for (int i = 1; i <= dimension; i++) {
             float x = (float) (radius * Math.cos(delta * (i)));
             float y = (float) (radius * Math.sin(delta * (i)));
             float z = center.getZ();
-            points[i - 1] = new Vector3(x, y, z);
+            points[i - 1] = new Vector3(x, y, 0.0f);
+/*
+            Vector4 v = new Vector4(x, y, z);
+            points[i - 1] = new Vector3(v.getX(), v.getY(),
+                    (float) (center.getZ() + radius * Math.cos(delta * i)));*/
         }
+
         return points;
     }
 
-    private Vector3[] transformCircle(List<Pair> transformation) {
-
+    Vector3[] transformCircle(List<Pair> transformation, Vector3[] circlePoints) {
+        for (Pair p :
+                transformation) {
+            Matrix4 m = Matrix4Factories.rotationXYZ(p.angle, p.axis);
+            for (int i = 0; i < circlePoints.length; i++) {
+                Vector4 v4 = m.mul(new Vector4(circlePoints[i]));
+                circlePoints[i] = new Vector3(v4.getX(), v4.getY(), v4.getZ());
+            }
+        }
+        return circlePoints;
     }
-
-    @Override
-    List<PolyLine3D> getLines();
+    Vector3 transformCircle(List<Pair> transformation, Vector3 circlePoints) {
+        for (Pair p :
+                transformation) {
+            Matrix4 m = Matrix4Factories.rotationXYZ(p.angle, p.axis);
+                Vector4 v4 = m.mul(new Vector4(circlePoints));
+                circlePoints = new Vector3(v4.getX(), v4.getY(), v4.getZ());
+        }
+        return circlePoints;
+    }
 }

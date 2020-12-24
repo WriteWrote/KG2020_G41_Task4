@@ -48,7 +48,6 @@ public class Torus implements IModel {
             float z = torusCenter.getZ();
             circles[i - 1] = new Vector3(x, y, z);
         }
-        // просто для проверки строится траектория внутренней окружности торуса
 
         //список векторов по направлению линии
         List<Vector3> angleVectors = new LinkedList<>();
