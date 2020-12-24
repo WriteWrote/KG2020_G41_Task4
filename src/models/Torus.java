@@ -17,75 +17,51 @@ import java.util.List;
 /**
  * Класс, описывающий фигуру "тор"/"бублик"
  */
-public class Torus implements IModel {
+public class Torus implements Round {
     private Vector3 torusCenter;
-    private float torusRad;
+    //private float torusRad;
     private float torusThickness;
-    private static final int EDGES = 30;
-
+    private static final int EDGES = 100;
+    private ILine line;
     /**
      * Создает экземпляр тора, используя уравнение окружности.
      *
-     * @param torusCenter    {@link Vector3} координата центра окружности, по которой строится тор
-     * @param torusRad       радиус тора
      * @param torusThickness радиус окружности замкнутого цилиндра, из которого собирается тор
      */
-    public Torus(Vector3 torusCenter, float torusRad, float torusThickness) {
-        this.torusCenter = torusCenter;
-        this.torusRad = torusRad;
+    public Torus(ILine iLine, float torusThickness) {
+        this.line = iLine;
         this.torusThickness = torusThickness;
     }
 
     @Override
     public List<PolyLine3D> getLines() {
         List<PolyLine3D> lines = new ArrayList<>();
-        double delta = Math.PI * 2 / EDGES;
+        //double delta = Math.PI * 2 / EDGES;
 
-        Vector3[] circles = new Vector3[EDGES];
-        for (int i = 1; i <= EDGES; i++) {
-            float x = (float) (torusRad * Math.cos(delta * (i)));
-            float y = (float) (torusRad * Math.sin(delta * (i)));
-            float z = torusCenter.getZ();
-            circles[i - 1] = new Vector3(x, y, z);
-        }
+        Vector3[] path = getPath(EDGES, torusThickness);
 
         //список векторов по направлению линии
         List<Vector3> angleVectors = new LinkedList<>();
         for (int o = 0; o < EDGES - 1; o++) {
-            float x = circles[o + 1].getX() - circles[o].getX();
-            float y = circles[o + 1].getY() - circles[o].getY();
-            float z = circles[o + 1].getZ() - circles[o].getZ();
+            float x = path[o + 1].getX() - path[o].getX();
+            float y = path[o + 1].getY() - path[o].getY();
+            float z = path[o + 1].getZ() - path[o].getZ();
             angleVectors.add(new Vector3(x, y, z));
         }
-        angleVectors.add(new Vector3(circles[EDGES - 1].getX() - circles[0].getX(),
-                circles[EDGES - 1].getY() - circles[0].getY(),
-                circles[EDGES - 1].getZ() - circles[0].getZ()));
+        angleVectors.add(new Vector3(path[EDGES - 1].getX() - path[0].getX(),
+                path[EDGES - 1].getY() - path[0].getY(),
+                path[EDGES - 1].getZ() - path[0].getZ()));
         // подготовительные данные собраны:
         // центры кругов circles,
         // векторы направляющей прямой angleVectors,
         // дельта угол delta
 
-        for (int i = 0; i < EDGES ; i++) {
+        for (int i = 0; i < EDGES; i++) {
             // разбираем один круг
-            Vector3[] slice = new Vector3[EDGES];
-            for (int j = 1; j <= EDGES; j++) {
-                // строим базовые точки круга
-                float x = (float) (torusThickness * Math.cos(delta * (j)));
-                float y = (float) (torusThickness * Math.sin(delta * (j)));
-                float z = 0;
-
-                // поворот на 90 градусов
-                Vector4 v = new Vector4(x, y, z);
-                Matrix4 m = Matrix4Factories.rotationXYZ(Math.PI / 2, 1);
-                v = m.mul(v);
-
-                // завершаем создание круга, ориентированного по ходу линии
-                slice[j - 1] = new Vector3(v.getX(), v.getY(),
-                        (float) (circles[i].getZ() + torusThickness * Math.cos(delta * j)));
-            }
+            Vector3[] slice = getCircle(EDGES, path[i].getZ());
             // берем вектор для этого круга, берем вектор самого круга
             Vector3 vec = angleVectors.get(i);
-            Vector3 cv = circles[i].getX() < 0 ? new Vector3(1, 0, 0) : new Vector3(-1, 0, 0);
+            Vector3 cv = path[i].getX() < 0 ? new Vector3(1, 0, 0) : new Vector3(-1, 0, 0);
 
             // вычисление угла между направлящим вектором прямой и нормалью текущей окружности
             double angle = Math.acos((vec.getX() * cv.getX() + vec.getY() * cv.getY() + vec.getZ() * cv.getZ()) /
@@ -98,7 +74,7 @@ public class Torus implements IModel {
             for (int j = 0; j < EDGES; j++) {
                 // перезапись точек окружности
                 Vector4 v4 = m.mul(new Vector4(slice[j]));
-                slice[j] = new Vector3(v4.getX() + circles[i].getX(), v4.getY() + circles[i].getY(), v4.getZ() + circles[i].getZ() + 2 * torusThickness);
+                slice[j] = new Vector3(v4.getX() + path[i].getX(), v4.getY() + path[i].getY(), v4.getZ() + path[i].getZ() + 2 * torusThickness);
             }
             // создание полилинии одного круга и добавление ее в список линий
             PolyLine3D line = new PolyLine3D(Arrays.asList(slice), true);
@@ -108,7 +84,7 @@ public class Torus implements IModel {
         for (int i = 0; i < EDGES - 1; i++) {
             addPolyCircle(lines, i, i + 1);
         }
-        addPolyCircle(lines, EDGES-1, 0);
+        //addPolyCircle(lines, EDGES - 1, 0);
 
         return lines;
     }
@@ -126,7 +102,7 @@ public class Torus implements IModel {
     private void addPolyCircle(List<PolyLine3D> lines, int nCurr, int nPrev) {
         PolyLine3D curr = lines.get(nCurr);
         PolyLine3D next = lines.get(nPrev);
-        if (nCurr == EDGES / 4-1 || nCurr == 3 * EDGES / 4-1) {
+        if (nCurr == EDGES / 4 - 1 || nCurr == 3 * EDGES / 4 - 1) {
             aVoid(curr, next, lines);
         } else {
             for (int j = 0; j < EDGES - 1; j++) {
@@ -168,5 +144,41 @@ public class Torus implements IModel {
         points[3] = next.get(1);
         l = new PolyLine3D(Arrays.asList(points), true);
         lines.add(l);
+    }
+    @Override
+    public Vector3[] getPath(int dimension, float torusThickness) {
+        double delta = Math.PI * 2 / dimension;
+
+        Vector3[] circles = new Vector3[dimension];
+        for (int i = 1; i <= dimension; i++) {
+            /*
+            float x = (float) (torusRad * Math.cos(delta * (i)));
+            float y = (float) (torusRad * Math.sin(delta * (i)));
+            float z = torusCenter.getZ();*/
+            circles[i - 1] =  line.getPoint((double) i/dimension);
+        //new Vector3(x, y, z);
+        }
+        return circles;
+    }
+
+    @Override
+    public Vector3[] getCircle(int dimension, float z) {
+        double delta = Math.PI * 2 / dimension;
+        Vector3[] slice = new Vector3[dimension];
+        for (int j = 1; j <= dimension; j++) {
+            // строим базовые точки круга
+            float x = (float) (torusThickness * Math.cos(delta * (j)));
+            float y = (float) (torusThickness * Math.sin(delta * (j)));
+
+            // поворот на 90 градусов
+            Vector4 v = new Vector4(x, y, 0.0f);
+            Matrix4 m = Matrix4Factories.rotationXYZ(Math.PI / 2, 1);
+            v = m.mul(v);
+
+            // завершаем создание круга, ориентированного по ходу линии
+            slice[j - 1] = new Vector3(v.getX(), v.getY(),
+                    (float) (z + torusThickness * Math.cos(delta * j)));
+        }
+        return slice;
     }
 }

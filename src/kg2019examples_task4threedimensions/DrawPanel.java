@@ -16,7 +16,10 @@ import kg2019examples_task4threedimensions.math.Vector3;
 import kg2019examples_task4threedimensions.screen.ScreenConverter;
 import kg2019examples_task4threedimensions.third.Camera;
 import kg2019examples_task4threedimensions.third.Scene;
+import models.ILine;
+import models.LeninTorus;
 import models.Torus;
+import models.TorusExp;
 
 /**
  * @author Alexey
@@ -35,17 +38,25 @@ public class DrawPanel extends JPanel
         camController = new CameraController(cam, sc);
         scene = new Scene(Color.WHITE.getRGB());
         scene.showAxes();
-
-        scene.getModelsList().add(new Torus(new Vector3(-0.4f, -0.4f, -0.4f),
-                0.4f, 0.2f));
+        TorusExp t1 = new TorusExp(0.2f, new Vector3(-0.4f, -0.4f, -0.4f));
+        ILine l = new ILine() {
+            @Override
+            public Vector3 getPoint(double t) {
+                return new Vector3((float) t, (float) Math.sin(t*Math.PI*2), 0.0f);
+            }
+        };
+        scene.getModelsList().add(new Torus(l, 0.01f));
+        /*
         scene.getModelsList().add(new Torus(new Vector3(-0.4f, -0.4f, -0.5f),
                 0.2f, 0.05f));
         scene.getModelsList().add(new Torus(new Vector3(0.1f, 0.1f, 0.1f),
                 0.5f, 0.25f));
         scene.getModelsList().add(new Torus(new Vector3(0.0f, 0.0f, 0.4f),
                 0.5f, 0.45f));
-
-
+        /*
+        scene.getModelsList().add(new LeninTorus(new Vector3(-0.4f, -0.4f, -0.4f),
+                0.4f, 0.2f));
+*/
         camController.addRepaintListener(this);
         addMouseListener(camController);
         addMouseMotionListener(camController);
