@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import javax.swing.JPanel;
 
 import kg2019examples_task4threedimensions.draw.IDrawer;
@@ -16,10 +17,10 @@ import kg2019examples_task4threedimensions.math.Vector3;
 import kg2019examples_task4threedimensions.screen.ScreenConverter;
 import kg2019examples_task4threedimensions.third.Camera;
 import kg2019examples_task4threedimensions.third.Scene;
-import models.ILine;
-import models.LeninTorus;
-import models.Torus;
-import models.TorusExp;
+import models.ilinemodels.ILine;
+import models.OpenCylinder;
+import models.ilinemodels.ITorus;
+import models.ilinemodels.ITrefoilKnot;
 
 /**
  * @author Alexey
@@ -38,14 +39,25 @@ public class DrawPanel extends JPanel
         camController = new CameraController(cam, sc);
         scene = new Scene(Color.WHITE.getRGB());
         scene.showAxes();
-        TorusExp t1 = new TorusExp(0.2f, new Vector3(-0.4f, -0.4f, -0.4f));
+
+        ITorus torus = new ITorus(0.4f, new Vector3(0.f, 0.f, 0.f));
+        ITrefoilKnot trefoilKnot = new ITrefoilKnot(0.2f, new Vector3(0.f, 0.f, 0.f));
+
         ILine l = new ILine() {
             @Override
             public Vector3 getPoint(double t) {
-                return new Vector3((float) t, (float) Math.sin(t*Math.PI*2), 0.0f);
+                return new Vector3((float) t, (float) Math.sin(t * Math.PI * 2), 0.0f);
+            }
+
+            @Override
+            public List<Vector3> getPoint(int i, int dimension) {
+                return null;
             }
         };
-        scene.getModelsList().add(new Torus(l, 0.01f));
+
+        scene.getModelsList().add(new OpenCylinder(trefoilKnot, 0.1f, false));
+        //scene.getModelsList().add(new OpenCylinder(torus, 0.1f, true));
+
         /*
         scene.getModelsList().add(new Torus(new Vector3(-0.4f, -0.4f, -0.5f),
                 0.2f, 0.05f));
@@ -57,6 +69,7 @@ public class DrawPanel extends JPanel
         scene.getModelsList().add(new LeninTorus(new Vector3(-0.4f, -0.4f, -0.4f),
                 0.4f, 0.2f));
 */
+
         camController.addRepaintListener(this);
         addMouseListener(camController);
         addMouseMotionListener(camController);
