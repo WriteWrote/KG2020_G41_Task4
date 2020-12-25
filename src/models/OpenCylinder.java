@@ -19,7 +19,7 @@ import java.util.List;
  * Класс, описывающий фигуру "тор"/"бублик"
  */
 public class OpenCylinder implements IModel {
-    private static final int EDGES = 30;
+    private static final int EDGES = 70;
     private IOutline outline;
     private ILine line;
     private boolean isClosed;
@@ -54,22 +54,15 @@ public class OpenCylinder implements IModel {
 
         for (int i = 0; i < EDGES; i++) {
             // разбираем один круг
-            Vector3[] slice = getCircle(path[i].getZ());
+            Vector3[] slice = getCircle(path[i].getZ(), i, path);
             // берем вектор для этого круга, берем вектор самого круга
             Vector3 vec = angleVectors.get(i);
             Vector3 cv = path[i].getX() < 0 ? new Vector3(1, 0, 0) : new Vector3(-1, 0, 0);
-
+            //System.out.println("circle " + i + ": " + cv.getX());
             // вычисление угла между направлящим вектором прямой и нормалью текущей окружности
             double a = (vec.getX() * cv.getX() + vec.getY() * cv.getY() + vec.getZ() * cv.getZ());
             double b = Math.sqrt(vec.getX() * vec.getX() + vec.getY() * vec.getY() + vec.getZ() * vec.getZ()) *
                     Math.sqrt(cv.getX() * cv.getX() + cv.getY() * cv.getY() + cv.getZ() * cv.getZ());
-            double c;
-            if (Math.abs(a / b) >= 1)
-                c = Math.acos(1);
-            else c = Math.acos(a / b);
-            System.out.print("circle " + i + " : " + a);
-            System.out.println(" ; " + b + " ; " + c);
-
             double angle;
             if (Math.abs(a / b) > 1)
                 angle = Math.acos(1);
@@ -78,11 +71,11 @@ public class OpenCylinder implements IModel {
             // матрица поворота на угол по тору: для каждого круга ++delta
             Matrix4 m = Matrix4Factories.rotationXYZ(angle, 2);
             // поворот вокруг оси z для всех точек круга, лежащих в slice
+            float innerThickness = 0;//outline.getRadius(i / (double) EDGES);
             for (int j = 0; j < EDGES; j++) {
                 // перезапись точек окружности
                 Vector4 v4 = new Vector4(slice[j]);
                 v4 = m.mul(new Vector4(slice[j]));
-                float innerThickness = outline.getRadius(i / (double) EDGES);
                 slice[j] = new Vector3(v4.getX() + path[i].getX(), v4.getY() + path[i].getY(), v4.getZ() + path[i].getZ() + 2 * innerThickness);
             }
             // создание полилинии одного круга и добавление ее в список линий
@@ -113,14 +106,14 @@ public class OpenCylinder implements IModel {
         PolyLine3D curr = lines.get(nCurr);
         PolyLine3D next = lines.get(nPrev);
 
-        if (nCurr == EDGES / 4 - 1 || nCurr == 3 * EDGES / 4 - 1) {
+        /*if (nCurr == EDGES / 4 - 1 || nCurr == 3 * EDGES / 4 - 1) {
             aVoid(curr, next, lines);
-        } else {
-            for (int j = 0; j < EDGES - 1; j++) {
-                addPolygon(curr, next, lines, j, j + 1);
-            }
-            addPolygon(curr, next, lines, EDGES - 1, 0);
+        } else {*/
+        for (int j = 0; j < EDGES - 1; j++) {
+            addPolygon(curr, next, lines, j, j + 1);
         }
+        addPolygon(curr, next, lines, EDGES - 1, 0);
+        //}
 
     }
 
@@ -168,20 +161,26 @@ public class OpenCylinder implements IModel {
         return circles;
     }
 
-    private Vector3[] getCircle(float z) {
+    private Vector3[] getCircle(float z, int i, Vector3[] path) {
         double delta = Math.PI * 2 / OpenCylinder.EDGES;
         Vector3[] slice = new Vector3[OpenCylinder.EDGES];
         for (int j = 1; j <= OpenCylinder.EDGES; j++) {
             // строим базовые точки круга
-            float radius = outline.getRadius(j / (double) OpenCylinder.EDGES);
+            float radius = outline.getRadius(i / (double) OpenCylinder.EDGES);
             float x = (float) (radius * Math.cos(delta * (j)));
             float y = (float) (radius * Math.sin(delta * (j)));
 
             // поворот на 90 градусов
             Vector4 v = new Vector4(x, y, 0.0f);
             Matrix4 m = Matrix4Factories.rotationXYZ(Math.PI / 2, 1);
-            //v = m.mul(v);
+            v = m.mul(v);
 
+            Vector3 cv = path[i].getX() < 0 ? new Vector3(1, 0, 0) : new Vector3(-1, 0, 0);
+            // аддитивная штуковання
+            double ad = cv.getX() < 0 ? Math.PI : 0;
+            // компенсирующая матрица
+            Matrix4 compM = Matrix4Factories.rotationXYZ(ad, 0);
+            v = compM.mul(v);
             // завершаем создание круга, ориентированного по ходу линии
             slice[j - 1] = new Vector3(v.getX(), v.getY(),
                     (float) (z + radius * Math.cos(delta * j)));

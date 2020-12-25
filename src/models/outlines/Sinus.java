@@ -11,7 +11,7 @@ public class Sinus implements IOutline {
 
     @Override
     public float getRadius(double t) {
-        return (float) ((Math.abs(k * Math.sin(t * 2 * Math.PI) + radius)));
+        return (float) (k * Math.sin(t * 20 * Math.PI) + radius);
     }
 
     @Override

@@ -49,25 +49,13 @@ public class DrawPanel extends JPanel
             }
         };
         Cylinder cylinder = new Cylinder(0.1f);
-        Sinus sinus = new Sinus(0.3f, 1.f);
+        Sinus sinus = new Sinus(0.1f, 0.1f);
 
         ITorus torus = new ITorus(0.9f, new Vector3(0.f, 0.f, 0.f));
         ITrefoilKnot trefoilKnot = new ITrefoilKnot(0.2f, new Vector3(0.f, 0.f, 0.f));
         I_Line line = new I_Line(new Vector3(0.2f, 0.2f, 0.2f), 0.5f);
         //scene.getModelsList().add(new OpenCylinder(trefoilKnot, cylinder, true));
-        scene.getModelsList().add(new OpenCylinder(trefoilKnot, cylinder, true));
-
-        /*
-        scene.getModelsList().add(new Torus(new Vector3(-0.4f, -0.4f, -0.5f),
-                0.2f, 0.05f));
-        scene.getModelsList().add(new Torus(new Vector3(0.1f, 0.1f, 0.1f),
-                0.5f, 0.25f));
-        scene.getModelsList().add(new Torus(new Vector3(0.0f, 0.0f, 0.4f),
-                0.5f, 0.45f));
-        /*
-        scene.getModelsList().add(new LeninTorus(new Vector3(-0.4f, -0.4f, -0.4f),
-                0.4f, 0.2f));
-*/
+        scene.getModelsList().add(new OpenCylinder(torus, cylinder, true));
 
         camController.addRepaintListener(this);
         addMouseListener(camController);

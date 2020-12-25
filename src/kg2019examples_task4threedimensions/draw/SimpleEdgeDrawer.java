@@ -84,7 +84,7 @@ public class SimpleEdgeDrawer extends ScreenGraphicsDrawer {
                 //float d = o1.avgZ() - o2.avgZ();
                 float a = o1.avgZ();
                 float b = o2.avgZ();
-                System.out.printf("%f; %f\n", a, b);
+                //System.out.printf("%f; %f\n", a, b);
                 float d = a - b;
                 if (-EPSILON < d && d < EPSILON)
                     return 0;
