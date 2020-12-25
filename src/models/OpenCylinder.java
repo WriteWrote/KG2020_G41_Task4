@@ -4,8 +4,10 @@ import kg2019examples_task4threedimensions.math.Matrix4;
 import kg2019examples_task4threedimensions.math.Matrix4Factories;
 import kg2019examples_task4threedimensions.math.Vector3;
 import kg2019examples_task4threedimensions.math.Vector4;
+import kg2019examples_task4threedimensions.third.IModel;
 import kg2019examples_task4threedimensions.third.PolyLine3D;
-import models.ilinemodels.ILine;
+import models.outlines.IOutline;
+import models.paths.ILine;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,17 +17,16 @@ import java.util.List;
 /**
  * Класс, описывающий фигуру "тор"/"бублик"
  */
-public class OpenCylinder implements Round {
-    //private Vector3 torusCenter;
-    //private float torusRad;
-    private float torusThickness;
-    private static final int EDGES = 100;
+public class OpenCylinder implements IModel {
+    private static final int EDGES = 10;
+    private IOutline outline;
     private ILine line;
     private boolean isClosed;
 
-    public OpenCylinder(ILine iLine, float torusThickness, boolean isClosed) {
+    public OpenCylinder(ILine iLine, IOutline outline, boolean isClosed) {
         this.line = iLine;
-        this.torusThickness = torusThickness;
+        //this.innerThickness = innerThickness;
+        this.outline = outline;
         this.isClosed = isClosed;
     }
 
@@ -33,18 +34,18 @@ public class OpenCylinder implements Round {
     public List<PolyLine3D> getLines() {
         List<PolyLine3D> lines = new ArrayList<>();
         //double delta = Math.PI * 2 / EDGES;
-        List<Vector3> path = getPath(EDGES, torusThickness);
+        Vector3[] path = getPath();
         //список векторов по направлению линии
         List<Vector3> angleVectors = new LinkedList<>();
         for (int o = 0; o < EDGES - 1; o++) {
-            float x = path.get(o + 1).getX() - path.get(o).getX();
-            float y = path.get(o + 1).getY() - path.get(o).getY();
-            float z = path.get(o + 1).getZ() - path.get(o).getZ();
+            float x = path[o + 1].getX() - path[o].getX();
+            float y = path[o + 1].getY() - path[o].getY();
+            float z = path[o + 1].getZ() - path[o].getZ();
             angleVectors.add(new Vector3(x, y, z));
         }
-        angleVectors.add(new Vector3(path.get(EDGES - 1).getX() - path.get(0).getX(),
-                path.get(EDGES - 1).getY() - path.get(0).getY(),
-                path.get(EDGES - 1).getZ() - path.get(0).getZ()));
+        angleVectors.add(new Vector3(path[EDGES - 1].getX() - path[0].getX(),
+                path[EDGES - 1].getY() - path[0].getY(),
+                path[EDGES - 1].getZ() - path[0].getZ()));
         // подготовительные данные собраны:
         // центры кругов circles,
         // векторы направляющей прямой angleVectors,
@@ -52,10 +53,10 @@ public class OpenCylinder implements Round {
 
         for (int i = 0; i < EDGES; i++) {
             // разбираем один круг
-            Vector3[] slice = getCircle(EDGES, path.get(i).getZ());
+            Vector3[] slice = getCircle(path[i].getZ());
             // берем вектор для этого круга, берем вектор самого круга
             Vector3 vec = angleVectors.get(i);
-            Vector3 cv = path.get(i).getX() < 0 ? new Vector3(1, 0, 0) : new Vector3(-1, 0, 0);
+            Vector3 cv = path[i].getX() < 0 ? new Vector3(1, 0, 0) : new Vector3(-1, 0, 0);
 
             // вычисление угла между направлящим вектором прямой и нормалью текущей окружности
             double angle = Math.acos((vec.getX() * cv.getX() + vec.getY() * cv.getY() + vec.getZ() * cv.getZ()) /
@@ -67,8 +68,12 @@ public class OpenCylinder implements Round {
             // поворот вокруг оси z для всех точек круга, лежащих в slice
             for (int j = 0; j < EDGES; j++) {
                 // перезапись точек окружности
-                Vector4 v4 = m.mul(new Vector4(slice[j]));
-                slice[j] = new Vector3(v4.getX() + path.get(i).getX(), v4.getY() + path.get(i).getY(), v4.getZ() + path.get(i).getZ() + 2 * torusThickness);
+                Vector4 v4 = new Vector4(slice[j]);
+                v4 = m.mul(new Vector4(slice[j]));
+                // туточки заныкалось
+                float innerThickness = outline.getRadius(i / (double) EDGES);
+                slice[j] = new Vector3(v4.getX() + path[i].getX(), v4.getY() + path[i].getY(), v4.getZ() + path[i].getZ() + 2 * innerThickness);
+                System.out.println("slicePoint " + i + ";" + j + ": " + slice[j].getX() + " ; " + slice[j].getY() + " ; " + slice[j].getZ());
             }
             // создание полилинии одного круга и добавление ее в список линий
             PolyLine3D line = new PolyLine3D(Arrays.asList(slice), true);
@@ -141,32 +146,24 @@ public class OpenCylinder implements Round {
         lines.add(l);
     }
 
-    @Override
-    public List<Vector3> getPath(int dimension, float torusThickness) {
-        double delta = Math.PI * 2 / dimension;
+    private Vector3[] getPath() {
+        double delta = Math.PI * 2 / OpenCylinder.EDGES;
 
-        //Vector3[] circles = new Vector3[dimension];
-        List<Vector3> circles = new LinkedList<>();
-        for (int i = 1; i <= dimension; i++) {
-            /*
-            float x = (float) (torusRad * Math.cos(delta * (i)));
-            float y = (float) (torusRad * Math.sin(delta * (i)));
-            float z = torusCenter.getZ();*/
-            //circles[i - 1] = line.getPoint((double) i /dimension);
-            List<Vector3> result = line.getPoint(i, dimension);
-            circles.addAll(result);
+        Vector3[] circles = new Vector3[OpenCylinder.EDGES];
+        for (int i = 1; i <= OpenCylinder.EDGES; i++) {
+            circles[i - 1] = line.getPoint((double) i / OpenCylinder.EDGES);
         }
         return circles;
     }
 
-    @Override
-    public Vector3[] getCircle(int dimension, float z) {
-        double delta = Math.PI * 2 / dimension;
-        Vector3[] slice = new Vector3[dimension];
-        for (int j = 1; j <= dimension; j++) {
+    private Vector3[] getCircle(float z) {
+        double delta = Math.PI * 2 / OpenCylinder.EDGES;
+        Vector3[] slice = new Vector3[OpenCylinder.EDGES];
+        for (int j = 1; j <= OpenCylinder.EDGES; j++) {
             // строим базовые точки круга
-            float x = (float) (torusThickness * Math.cos(delta * (j)));
-            float y = (float) (torusThickness * Math.sin(delta * (j)));
+            float radius = outline.getRadius(j / (double) OpenCylinder.EDGES);
+            float x = (float) (radius * Math.cos(delta * (j)));
+            float y = (float) (radius * Math.sin(delta * (j)));
 
             // поворот на 90 градусов
             Vector4 v = new Vector4(x, y, 0.0f);
@@ -175,7 +172,7 @@ public class OpenCylinder implements Round {
 
             // завершаем создание круга, ориентированного по ходу линии
             slice[j - 1] = new Vector3(v.getX(), v.getY(),
-                    (float) (z + torusThickness * Math.cos(delta * j)));
+                    (float) (z + radius * Math.cos(delta * j)));
         }
         return slice;
     }

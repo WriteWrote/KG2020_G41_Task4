@@ -7,11 +7,13 @@ package kg2019examples_task4threedimensions.third;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+
 import kg2019examples_task4threedimensions.math.Vector3;
 
 /**
  * Полилиния в трёхмерном пространстве.
  * Описывает ломанную в трёхмерном пространстве по опорным точкам
+ *
  * @author Alexey
  */
 public class PolyLine3D {
@@ -20,6 +22,7 @@ public class PolyLine3D {
 
     /**
      * Создаёт новую полилинию на основе трёхмерных точек.
+     *
      * @param points список точек-вершин ломанной
      * @param closed признак замкнутостит линии
      */
@@ -30,6 +33,7 @@ public class PolyLine3D {
 
     /**
      * Признак закрытости
+     *
      * @return возвращает истину, если линия замкнута, иначе - ложь.
      */
     public boolean isClosed() {
@@ -38,14 +42,16 @@ public class PolyLine3D {
 
     /**
      * Список вершин линии
+     *
      * @return возвращает список точек.
      */
     public List<Vector3> getPoints() {
         return points;
     }
-    
+
     /**
      * Вычисляет среднее арифметическое по оси Z.
+     *
      * @return среднее по Z для полилинии.
      */
     public float avgZ() {
@@ -53,7 +59,9 @@ public class PolyLine3D {
             return 0;
         float sum = 0;
         for (Vector3 v : points)
-            sum += v.getZ();
+            //if (!Float.isNaN(v.getZ()))
+                sum += v.getZ();
+           // else System.out.println("NAN: " + v.getX() + " ; " + v.getY() + " ; " + v.getZ());
         return sum / points.size();
     }
 
