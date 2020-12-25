@@ -81,7 +81,7 @@ public class OpenCylinder implements IModel {
             for (int j = 0; j < EDGES; j++) {
                 // перезапись точек окружности
                 Vector4 v4 = new Vector4(slice[j]);
-                //v4 = m.mul(new Vector4(slice[j]));
+                v4 = m.mul(new Vector4(slice[j]));
                 float innerThickness = outline.getRadius(i / (double) EDGES);
                 slice[j] = new Vector3(v4.getX() + path[i].getX(), v4.getY() + path[i].getY(), v4.getZ() + path[i].getZ() + 2 * innerThickness);
             }
@@ -113,10 +113,6 @@ public class OpenCylinder implements IModel {
         PolyLine3D curr = lines.get(nCurr);
         PolyLine3D next = lines.get(nPrev);
 
-        List<Integer> n = new LinkedList<>();
-        for (int i = 0; i < EDGES; i += 4) {
-            n.add(i);
-        }
         if (nCurr == EDGES / 4 - 1 || nCurr == 3 * EDGES / 4 - 1) {
             aVoid(curr, next, lines);
         } else {
@@ -125,6 +121,7 @@ public class OpenCylinder implements IModel {
             }
             addPolygon(curr, next, lines, EDGES - 1, 0);
         }
+
     }
 
     private void aVoid(PolyLine3D curr, PolyLine3D next, List<PolyLine3D> lines) {
@@ -162,7 +159,7 @@ public class OpenCylinder implements IModel {
     }
 
     private Vector3[] getPath() {
-        double delta = Math.PI * 2 / OpenCylinder.EDGES;
+        //double delta = Math.PI * 2 / OpenCylinder.EDGES;
 
         Vector3[] circles = new Vector3[OpenCylinder.EDGES];
         for (int i = 1; i <= OpenCylinder.EDGES; i++) {
